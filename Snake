@@ -2,7 +2,7 @@
 #include <iostream>
 #include <conio.h>
 #include <queue>
-
+/aazzaza
 using namespace std;
 
 bool GM;
