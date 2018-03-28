@@ -2,7 +2,9 @@
 #include <iostream>
 #include <conio.h>
 #include <queue>
-/aazzaza
+#include <fstream>
+#include <time.h>
+
 using namespace std;
 
 bool GM;
@@ -16,7 +18,8 @@ int field[h][w];
 */
 int xh, yh, xf, yf, xt, yt;
 enum eD { STOP = 0, LEFT, RIGHT, UP, DOWN };
-eD dir;
+eD dir,dirp;
+char ch;
 
 struct point
 {
@@ -27,7 +30,7 @@ struct point
 queue <point> snake;
 point head;
 
-bool empty(int x,int y)
+bool empty(int x, int y)
 {
 	if (field[y][x])
 		return false;
@@ -49,6 +52,19 @@ void fspawn()
 			field[yf][xf] = 2;
 			break;
 		}
+	}
+}
+
+eD invers(eD d) {
+	switch(d){
+		case LEFT:
+			return RIGHT;
+		case RIGHT:
+			return LEFT;
+		case UP:
+			return DOWN;
+		case DOWN:
+			return UP;
 	}
 }
 
@@ -81,7 +97,7 @@ void Draw()
 			switch (field[i][j])
 			{
 			case 0:
-				cout << ' ';
+				cout << " ";
 				break;
 			case 3:
 				cout << '#';
@@ -100,40 +116,42 @@ void Draw()
 
 void Input() {
 	if (_kbhit()) {
-		switch (_getch()) {
+		ch = _getch();
+		switch (ch) {
 		case 'a':
-			dir = LEFT;
+			dirp = LEFT;
 			break;
 		case 'w':
-			dir = UP;
+			dirp = UP;
 			break;
 		case 'd':
-			dir = RIGHT;
+			dirp = RIGHT;
 			break;
 		case 's':
-			dir = DOWN;
+			dirp = DOWN;
 			break;
 		}
+		if (dirp != invers(dir)) dir = dirp;
 	}
 }
 
-void Logic() 
+void Logic()
 {
-	switch (dir) 
-	{
-	case LEFT:
-		xh--;
-		break;
-	case RIGHT:
-		xh++;
-		break;
-	case UP:
-		yh--;
-		break;
-	case DOWN:
-		yh++;
-		break;
-	}
+		switch (dir)
+		{
+		case LEFT:
+			xh--;
+			break;
+		case RIGHT:
+			xh++;
+			break;
+		case UP:
+			yh--;
+			break;
+		case DOWN:
+			yh++;
+			break;
+		}
 	head.x = xh;
 	head.y = yh;
 	if (empty(xh, yh))
@@ -157,18 +175,90 @@ void Logic()
 	}
 }
 
-int main()
-{
-	while (true)
-	{
-		Setup();
-		while (!GM)
-		{
-			Draw();
-			Input();
-			Logic();
+void log(ofstream& f) {
+	switch (dir) {
+	case LEFT:
+		f << 1 << " ";
+		break;
+	case RIGHT:
+		f << 2 << " ";
+		break;
+	case UP:
+		f << 3 << " ";
+		break;
+	case DOWN:
+		f << 4 << " ";
+		break;
+	}
+}
+
+void logre(ifstream& f, int k) {
+	int t;
+	f >> t;
+	for(int i=0;i<k-1;i++)
+		while(t!='\n')
+			f >> t;
+	f >> t;
+	srand(t);
+	Setup();
+	f >> t;
+	while (t!='\n') {
+		switch (t) {
+		case 1:
+			dir = LEFT;
+			break;
+		case 2:
+			dir = RIGHT;
+			break;
+		case 3:
+			dir = UP;
+			break;
+		case 4:
+			dir = DOWN;
+			break;
 		}
-		system("pause");
+		Draw();
+		Logic();
+		f >> t;
+	}
+}
+
+int main()
+{	
+	char c;
+	cin >> c;
+	int lo;
+	if (c == 'g') {
+		ofstream f("log.log", ios::app);
+		while (true)
+		{
+			ifstream f1("loglog.log");
+			f1 >> lo;
+			f1.close();
+			int t = time(0);
+			f << t << " ";
+			srand(t);
+			Setup();
+			while (!GM)
+			{
+				log(f);
+				Draw();
+				Input();
+				Logic();
+			}
+			f << endl;
+			lo++;
+			ofstream f2;
+			f2 << lo;
+			f2.close();
+			system("pause");
+		}
+	}
+	else {
+		int k;
+		cin >> k;
+		ifstream f("log.log");
+		logre(f, k);
 	}
 	return 0;
 }
