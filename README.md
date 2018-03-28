@@ -1,2 +1,0 @@
-Darova, eto kursach
-Azazaza
